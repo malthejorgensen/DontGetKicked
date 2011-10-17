@@ -6,12 +6,12 @@ states = np.unique(data['VNST'])
 bad_buy_avg = []
 #states = []
 for state in states:
-	avg = data[data['VNST']==state]['IsBadBuy'].mean()
-	bad_buy_avg.append(avg)
-	#print data[data['VNZIP1']==zip]['IsBadBuy'].mean()*100
+    avg = data[data['VNST']==state]['IsBadBuy'].mean()
+    bad_buy_avg.append(avg)
+    #print data[data['VNZIP1']==zip]['IsBadBuy'].mean()*100
 
-	#if avg > 0.2:
-	#	states.append((state, avg, len(data[data['VNST']==state])))
+    #if avg > 0.2:
+    #   states.append((state, avg, len(data[data['VNST']==state])))
 
 bar_pos = np.arange(len(states))*2
 

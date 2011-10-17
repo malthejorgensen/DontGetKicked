@@ -8,12 +8,12 @@ zipcodes = np.unique(data['VNZIP1'])
 bad_buy_avg = []
 zips = []
 for zip in zipcodes:
-	avg = data[data['VNZIP1']==zip]['IsBadBuy'].mean()
-	bad_buy_avg.append(avg)
-	#print data[data['VNZIP1']==zip]['IsBadBuy'].mean()*100
+    avg = data[data['VNZIP1']==zip]['IsBadBuy'].mean()
+    bad_buy_avg.append(avg)
+    #print data[data['VNZIP1']==zip]['IsBadBuy'].mean()*100
 
-	if avg > 0.2:
-		zips.append((zip, avg, len(data[data['VNZIP1']==zip])))
+    if avg > 0.2:
+        zips.append((zip, avg, len(data[data['VNZIP1']==zip])))
 
 bar_pos = np.arange(len(zipcodes))
 

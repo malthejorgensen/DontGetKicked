@@ -14,83 +14,83 @@ args = parser.parse_args()
 """
 #This would be for N.loadtext
 layout = {
-	'names':   ('RefId',	'IsBadBuy',	'PurchDate',	'Auction',	'VehYear',	'VehicleAge',	'Make',		'Model',	'Trim',		'SubModel',	'Color',	'Transmission',	'WheelTypeID',	'WheelType',	'VehOdo',	'Nationality',	'Size',		'TopThreeAmericanName',	'MMRAcquisitionAuctionAveragePrice',	'MMRAcquisitionAuctionCleanPrice',	'MMRAcquisitionRetailAveragePrice',	'MMRAcquisitonRetailCleanPrice',	'MMRCurrentAuctionAveragePrice',	'MMRCurrentAuctionCleanPrice',	'MMRCurrentRetailAveragePrice',	'MMRCurrentRetailCleanPrice',	'PRIMEUNIT',	'AUCGUART',	'BYRNO',	'VNZIP1',	'VNST',		'VehBCost',	'IsOnlineSale',	'WarrantyCost'),
-	'formats': ('int32',	'S10',	'S10',		'S10',	'int32',	'int32',		'S10',	'S10',	'S10', 	'S10',	'S10',	'S10',		'int32',		'S10',		'int32',	'S10',		'S10',	'S10',				'int32',								'int32',							'int32',							'int32',							'int32',							'int32',						'int32',						'int32',						'S10',		'S10',	'int32',	'int32',	'S10',	'int32',	'S10',		'int32')
+    'names':   ('RefId',    'IsBadBuy', 'PurchDate',    'Auction',  'VehYear',  'VehicleAge',   'Make',     'Model',    'Trim',     'SubModel', 'Color',    'Transmission', 'WheelTypeID',  'WheelType',    'VehOdo',   'Nationality',  'Size',     'TopThreeAmericanName', 'MMRAcquisitionAuctionAveragePrice',    'MMRAcquisitionAuctionCleanPrice',  'MMRAcquisitionRetailAveragePrice', 'MMRAcquisitonRetailCleanPrice',    'MMRCurrentAuctionAveragePrice',    'MMRCurrentAuctionCleanPrice',  'MMRCurrentRetailAveragePrice', 'MMRCurrentRetailCleanPrice',   'PRIMEUNIT',    'AUCGUART', 'BYRNO',    'VNZIP1',   'VNST',     'VehBCost', 'IsOnlineSale', 'WarrantyCost'),
+    'formats': ('int32',    'S10',  'S10',      'S10',  'int32',    'int32',        'S10',  'S10',  'S10',  'S10',  'S10',  'S10',      'int32',        'S10',      'int32',    'S10',      'S10',  'S10',              'int32',                                'int32',                            'int32',                            'int32',                            'int32',                            'int32',                        'int32',                        'int32',                        'S10',      'S10',  'int32',    'int32',    'S10',  'int32',    'S10',      'int32')
 }
 #N.loadtxt('training.csv', delimiter=',', dtype=layout)
 l = []
 for i in xrange(len(layout['names'])):
-	l.append( (layout['names'][i],layout['formats'][i]) )
+    l.append( (layout['names'][i],layout['formats'][i]) )
 print l
 """
 
 colnames = ['RefId', 'IsBadBuy', 'PurchDate', 'Auction', 'VehYear', 'VehicleAge', 'Make',  'Model', 'Trim',  'SubModel', 'Color', 'Transmission', 'WheelTypeID', 'WheelType', 'VehOdo', 'Nationality', 'Size',  'TopThreeAmericanName', 'MMRAcquisitionAuctionAveragePrice', 'MMRAcquisitionAuctionCleanPrice', 'MMRAcquisitionRetailAveragePrice', 'MMRAcquisitonRetailCleanPrice', 'MMRCurrentAuctionAveragePrice', 'MMRCurrentAuctionCleanPrice', 'MMRCurrentRetailAveragePrice', 'MMRCurrentRetailCleanPrice', 'PRIMEUNIT', 'AUCGUART', 'BYRNO', 'VNZIP1', 'VNST',  'VehBCost', 'IsOnlineSale', 'WarrantyCost']
 
 datatypes = [
-		('RefId', 'int32'),
-		('IsBadBuy', 'i1'),
-		('PurchDate', 'int64'),
-		('Auction', 'S10'),
-		('VehYear', 'int64'),
-		('VehicleAge', 'int32'),
-		('Make', 'S10'),
-		('Model', 'S10'),
-		('Trim', 'S10'),
-		('SubModel', 'S10'),
-		('Color', 'S10'),
-		('Transmission', 'S10'),
-		('WheelTypeID', 'int32'),
-		('WheelType', 'S10'),
-		('VehOdo', 'int32'),
-		('Nationality', 'S10'),
-		('Size', 'S10'),
-		('TopThreeAmericanName', 'S10'),
-		('MMRAcquisitionAuctionAveragePrice', 'int32'),
-		('MMRAcquisitionAuctionCleanPrice', 'int32'),
-		('MMRAcquisitionRetailAveragePrice', 'int32'),
-		('MMRAcquisitonRetailCleanPrice', 'int32'),
-		('MMRCurrentAuctionAveragePrice', 'int32'),
-		('MMRCurrentAuctionCleanPrice', 'int32'),
-		('MMRCurrentRetailAveragePrice', 'int32'),
-		('MMRCurrentRetailCleanPrice', 'int32'),
-		('PRIMEUNIT', 'S10'),
-		('AUCGUART', 'S10'),
-		('BYRNO', 'int32'),
-		('VNZIP1', 'int32'),
-		('VNST', 'S10'),
-		('VehBCost', 'int32'),
-		('IsOnlineSale', 'S10'),
-		('WarrantyCost', 'int32')
-	]
+        ('RefId', 'int32'),
+        ('IsBadBuy', 'i1'),
+        ('PurchDate', 'int64'),
+        ('Auction', 'S10'),
+        ('VehYear', 'int64'),
+        ('VehicleAge', 'int32'),
+        ('Make', 'S10'),
+        ('Model', 'S10'),
+        ('Trim', 'S10'),
+        ('SubModel', 'S10'),
+        ('Color', 'S10'),
+        ('Transmission', 'S10'),
+        ('WheelTypeID', 'int32'),
+        ('WheelType', 'S10'),
+        ('VehOdo', 'int32'),
+        ('Nationality', 'S10'),
+        ('Size', 'S10'),
+        ('TopThreeAmericanName', 'S10'),
+        ('MMRAcquisitionAuctionAveragePrice', 'int32'),
+        ('MMRAcquisitionAuctionCleanPrice', 'int32'),
+        ('MMRAcquisitionRetailAveragePrice', 'int32'),
+        ('MMRAcquisitonRetailCleanPrice', 'int32'),
+        ('MMRCurrentAuctionAveragePrice', 'int32'),
+        ('MMRCurrentAuctionCleanPrice', 'int32'),
+        ('MMRCurrentRetailAveragePrice', 'int32'),
+        ('MMRCurrentRetailCleanPrice', 'int32'),
+        ('PRIMEUNIT', 'S10'),
+        ('AUCGUART', 'S10'),
+        ('BYRNO', 'int32'),
+        ('VNZIP1', 'int32'),
+        ('VNST', 'S10'),
+        ('VehBCost', 'int32'),
+        ('IsOnlineSale', 'S10'),
+        ('WarrantyCost', 'int32')
+    ]
 
 
 def date_to_timestamp(s):
-	if s == 'NULL':
-		print 'Holy Balony'
-		return 0
-	d = s.split('/')
-	return time.mktime(datetime.date(int(d[2]), int(d[0]), int(d[1])).timetuple())
+    if s == 'NULL':
+        print 'Holy Balony'
+        return 0
+    d = s.split('/')
+    return time.mktime(datetime.date(int(d[2]), int(d[0]), int(d[1])).timetuple())
 
 
 import os, marshal
 from operator import itemgetter
 
 if not os.path.exists(args.temp_file) or args.force_load:
-	data = np.genfromtxt('training.csv',
-						 delimiter=',',
-						 names=colnames, skip_header=1, # Auto: 'names=True,'
-						 dtype=datatypes, # Auto: 'dtype=None,'
-						 missing_values='NULL',
-						 converters={'PurchDate': date_to_timestamp},
-						 skip_footer=70000)
-						 #converters={'PurchDate': np.datetime64})
-						 #usemask=True)
-	data.tofile(args.temp_file)
-	np.save(args.temp_file, data)
+    data = np.genfromtxt('training.csv',
+                         delimiter=',',
+                         names=colnames, skip_header=1, # Auto: 'names=True,'
+                         dtype=datatypes, # Auto: 'dtype=None,'
+                         missing_values='NULL',
+                         converters={'PurchDate': date_to_timestamp},
+                         skip_footer=70000)
+                         #converters={'PurchDate': np.datetime64})
+                         #usemask=True)
+    data.tofile(args.temp_file)
+    np.save(args.temp_file, data)
 else:
-	#data = np.rec.fromfile(args.temp_file, formats=map(itemgetter(1), datatypes))
-	data = np.rec.fromfile(args.temp_file, names=colnames, dtype=datatypes)
-	#data = np.load(args.temp_file + '.npy')
+    #data = np.rec.fromfile(args.temp_file, formats=map(itemgetter(1), datatypes))
+    data = np.rec.fromfile(args.temp_file, names=colnames, dtype=datatypes)
+    #data = np.load(args.temp_file + '.npy')
 
 datalength = len(data)
 
@@ -101,53 +101,53 @@ neurondata = []
 from heapq import nlargest
 
 for name, datatype in datatypes:
-	if name in options:
-		option = options['name']
-	else:
-		option = 10
+    if name in options:
+        option = options['name']
+    else:
+        option = 10
 
-	if option == 'Skip':
-		continue
+    if option == 'Skip':
+        continue
 
-	# dealing with strings
-	if datatype == 'S10':
-		# get the different values that this column can have
-		values = np.unique(data[name])
+    # dealing with strings
+    if datatype == 'S10':
+        # get the different values that this column can have
+        values = np.unique(data[name])
 
-		value_counts = {}
+        value_counts = {}
 
-		# get number of occurences of each value
-		for value in values:
-			value_counts[value] = (data[name]==value).sum()
+        # get number of occurences of each value
+        for value in values:
+            value_counts[value] = (data[name]==value).sum()
 
-		# we select the top 10 values to become our neurons
-		if option == 'All':
-			selected_values = sorted(value_counts.iteritems(), key=itemgetter(1), reverse=True)
-		else:
-			selected_values = nlargest(option, value_counts.iteritems(), itemgetter(1))
-		count = len(selected_values)
-		neuron_p = dict(zip(map(itemgetter(0), selected_values), range(count+1)))
-		print neuron_p
-		neurons = []
+        # we select the top 10 values to become our neurons
+        if option == 'All':
+            selected_values = sorted(value_counts.iteritems(), key=itemgetter(1), reverse=True)
+        else:
+            selected_values = nlargest(option, value_counts.iteritems(), itemgetter(1))
+        count = len(selected_values)
+        neuron_p = dict(zip(map(itemgetter(0), selected_values), range(count+1)))
+        print neuron_p
+        neurons = []
 
-		def neuronfunction(r,c):
-			if data[name][r] in neuron_p:
-				if neuron_p[data[name][r]] == c:
-					return 1
-				else:
-					return 0
-			elif c == count:
-				return 1
-			else:
-				return 0
+        def neuronfunction(r,c):
+            if data[name][r] in neuron_p:
+                if neuron_p[data[name][r]] == c:
+                    return 1
+                else:
+                    return 0
+            elif c == count:
+                return 1
+            else:
+                return 0
 
-		neurondata += [np.fromfunction(np.vectorize(neuronfunction), (datalength,count+1), dtype=int)]
+        neurondata += [np.fromfunction(np.vectorize(neuronfunction), (datalength,count+1), dtype=int)]
 
-	if datatype == 'int32':
-		dmin = data[name].min()
-		dmax = data[name].max()
-		print name
-		print dmin, dmax
+    if datatype == 'int32':
+        dmin = data[name].min()
+        dmax = data[name].max()
+        print name
+        print dmin, dmax
 
 neurondata = np.hstack(neurondata)
 np.savetxt(args.train_file, neurondata, fmt='%u')
