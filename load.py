@@ -97,6 +97,7 @@ datalength = len(data)
 options = {}
 
 neurondata = []
+neuron_dict = {}
 
 from heapq import nlargest
 
@@ -126,31 +127,42 @@ for name, datatype in datatypes:
 		else:
 			selected_values = nlargest(option, value_counts.iteritems(), itemgetter(1))
 		count = len(selected_values)
-		neuron_p = dict(zip(map(itemgetter(0), selected_values), range(count+1)))
-		print neuron_p
+		
 		neurons = []
+		for i in range(count):
+			neurons.append('0 '*i + '1' + ' 0'*(count-i))
+		
+		neuron_dict[name] = dict(zip(map(itemgetter(0), selected_values), neurons))
+		neuron_dict[name][None] = '0 '*count + '1'
 
-		def neuronfunction(r,c):
-			if data[name][r] in neuron_p:
-				if neuron_p[data[name][r]] == c:
-					return 1
-				else:
-					return 0
-			elif c == count:
-				return 1
-			else:
-				return 0
+		print neuron_dict[name]
 
-		neurondata += [np.fromfunction(np.vectorize(neuronfunction), (datalength,count+1), dtype=int)]
-
+'''
 	if datatype == 'int32':
 		dmin = data[name].min()
 		dmax = data[name].max()
 		print name
 		print dmin, dmax
+'''
 
-neurondata = np.hstack(neurondata)
-np.savetxt(args.train_file, neurondata, fmt='%u')
+lines = []
+for r in xrange(datalength):
+
+	line = []
+
+	for cname in colnames:
+		if dict(datatypes)[cname] != 'S10':
+			continue
+		
+		if data[r][cname] in neuron_dict[cname]: 
+			line.append(neuron_dict[cname][data[r][cname]])
+		else:
+			line.append(neuron_dict[cname][None])
+		
+	lines.append(' '.join(line)+'\n')
+	lines.append(str(data[r]['IsBadBuy'])+'\n')
+			
+open(args.train_file, 'w').writelines(lines)
 
 #print data[data['WarrantyCost']>2000]['RefId']
 
