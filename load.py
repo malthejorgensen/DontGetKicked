@@ -104,7 +104,7 @@ options = {
         'IsBadBuy': 'Skip',
         'PurchDate': 'Skip',
         'Auction': 10,
-        'VehYear': 'Skip',
+        'VehYear': 10,
         'VehicleAge': 'Skip',
         'Make': 'Skip',
         'Model': 'Skip',
@@ -190,7 +190,7 @@ for name, datatype in datatypes:
 
         print neuron_dict[name]
 
-    if datatype == 'int32':
+    if datatype[0:3] == 'int':
         if option == 'Decimal':
             neuron_count += 1
             continue
