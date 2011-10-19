@@ -11,11 +11,16 @@ parser.add_argument('--train-file', default='train.data', help='File for saving 
 
 args = parser.parse_args()
 
+strlen = 30
+strtype = np.dtype('S' + str(strlen))
+#strtype = 'S' + str(strlen)
+
+
 """
 #This would be for N.loadtext
 layout = {
     'names':   ('RefId',    'IsBadBuy', 'PurchDate',    'Auction',  'VehYear',  'VehicleAge',   'Make',     'Model',    'Trim',     'SubModel', 'Color',    'Transmission', 'WheelTypeID',  'WheelType',    'VehOdo',   'Nationality',  'Size',     'TopThreeAmericanName', 'MMRAcquisitionAuctionAveragePrice',    'MMRAcquisitionAuctionCleanPrice',  'MMRAcquisitionRetailAveragePrice', 'MMRAcquisitonRetailCleanPrice',    'MMRCurrentAuctionAveragePrice',    'MMRCurrentAuctionCleanPrice',  'MMRCurrentRetailAveragePrice', 'MMRCurrentRetailCleanPrice',   'PRIMEUNIT',    'AUCGUART', 'BYRNO',    'VNZIP1',   'VNST',     'VehBCost', 'IsOnlineSale', 'WarrantyCost'),
-    'formats': ('int32',    'S10',  'S10',      'S10',  'int32',    'int32',        'S10',  'S10',  'S10',  'S10',  'S10',  'S10',      'int32',        'S10',      'int32',    'S10',      'S10',  'S10',              'int32',                                'int32',                            'int32',                            'int32',                            'int32',                            'int32',                        'int32',                        'int32',                        'S10',      'S10',  'int32',    'int32',    'S10',  'int32',    'S10',      'int32')
+    'formats': ('int32',    strtype,  strtype,      strtype,  'int32',    'int32',        strtype,  strtype,  strtype,  strtype,  strtype,  strtype,      'int32',        strtype,      'int32',    strtype,      strtype,  strtype,              'int32',                                'int32',                            'int32',                            'int32',                            'int32',                            'int32',                        'int32',                        'int32',                        strtype,      strtype,  'int32',    'int32',    strtype,  'int32',    strtype,      'int32')
 }
 #N.loadtxt('training.csv', delimiter=',', dtype=layout)
 l = []
@@ -30,21 +35,21 @@ datatypes = [
         ('RefId', 'int32'),
         ('IsBadBuy', 'i1'),
         ('PurchDate', 'int64'),
-        ('Auction', 'S10'),
+        ('Auction', strtype),
         ('VehYear', 'int64'),
         ('VehicleAge', 'int32'),
-        ('Make', 'S10'),
-        ('Model', 'S10'),
-        ('Trim', 'S10'),
-        ('SubModel', 'S10'),
-        ('Color', 'S10'),
-        ('Transmission', 'S10'),
+        ('Make', strtype),
+        ('Model', strtype),
+        ('Trim', strtype),
+        ('SubModel', strtype),
+        ('Color', strtype),
+        ('Transmission', strtype),
         ('WheelTypeID', 'int32'),
-        ('WheelType', 'S10'),
+        ('WheelType', strtype),
         ('VehOdo', 'int32'),
-        ('Nationality', 'S10'),
-        ('Size', 'S10'),
-        ('TopThreeAmericanName', 'S10'),
+        ('Nationality', strtype),
+        ('Size', strtype),
+        ('TopThreeAmericanName', strtype),
         ('MMRAcquisitionAuctionAveragePrice', 'int32'),
         ('MMRAcquisitionAuctionCleanPrice', 'int32'),
         ('MMRAcquisitionRetailAveragePrice', 'int32'),
@@ -53,13 +58,13 @@ datatypes = [
         ('MMRCurrentAuctionCleanPrice', 'int32'),
         ('MMRCurrentRetailAveragePrice', 'int32'),
         ('MMRCurrentRetailCleanPrice', 'int32'),
-        ('PRIMEUNIT', 'S10'),
-        ('AUCGUART', 'S10'),
+        ('PRIMEUNIT', strtype),
+        ('AUCGUART', strtype),
         ('BYRNO', 'int32'),
         ('VNZIP1', 'int32'),
-        ('VNST', 'S10'),
+        ('VNST', strtype),
         ('VehBCost', 'int32'),
-        ('IsOnlineSale', 'S10'),
+        ('IsOnlineSale', strtype),
         ('WarrantyCost', 'int32')
     ]
 
@@ -110,7 +115,7 @@ for name, datatype in datatypes:
         continue
 
     # dealing with strings
-    if datatype == 'S10':
+    if datatype == strtype:
         # get the different values that this column can have
         values = np.unique(data[name])
 
@@ -126,31 +131,38 @@ for name, datatype in datatypes:
         else:
             selected_values = nlargest(option, value_counts.iteritems(), itemgetter(1))
         count = len(selected_values)
-        neuron_p = dict(zip(map(itemgetter(0), selected_values), range(count+1)))
-        print neuron_p
+
         neurons = []
+        for i in range(count):
+            neurons.append('0 '*i + '1' + ' 0'*(count-i))
+        
+        neuron_dict = dict(zip(map(itemgetter(0), selected_values), neurons))
+        neuron_dict[None] = '0 '*count + '1'
 
-        def neuronfunction(r,c):
-            if data[name][r] in neuron_p:
-                if neuron_p[data[name][r]] == c:
-                    return 1
-                else:
-                    return 0
-            elif c == count:
-                return 1
+        def neuronfunction(value):
+            if value in neuron_dict:
+                return neuron_dict[value]
             else:
-                return 0
+                return neuron_dict[None]
 
-        neurondata += [np.fromfunction(np.vectorize(neuronfunction), (datalength,count+1), dtype=int)]
+        #n_fun_vec = np.vectorize(neuronfunction)
+        fun_type = '|S' + str(len(neuron_dict[None]))
+        print fun_type
 
+        # lookie here: http://projects.scipy.org/numpy/ticket/1892
+        # - a bug/unfortunate feature in numpy truncate the strings from the
+        # vectorized function to 'S8'... too bad
+        neurondata += [np.vectorize(neuronfunction, otypes=[np.dtype(fun_type)])(data[name])]
+'''
     if datatype == 'int32':
         dmin = data[name].min()
         dmax = data[name].max()
         print name
         print dmin, dmax
+'''
 
-neurondata = np.hstack(neurondata)
-np.savetxt(args.train_file, neurondata, fmt='%u')
+neurondata = np.column_stack(neurondata)
+np.savetxt(args.train_file, neurondata, fmt='%s')
 
 #print data[data['WarrantyCost']>2000]['RefId']
 
