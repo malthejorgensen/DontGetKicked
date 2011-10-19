@@ -1,26 +1,29 @@
-import pyfann import libfann
+from pyfann import libfann
 
-def TestOnData(self, nn, testdata):
+def TestOnData(nn, testdata):
     ann = libfann.neural_net()
     ann.create_from_file(nn)
+    
+    trainingData = libfann.training_data()
+    trainingData.read_train_from_file(testdata)
+    #print trainingData.length_train_data()
+    ann.reset_MSE()
+    ann.test_data(trainingData)
+    print "Bit Fail: " + str(ann.get_bit_fail())
+    print "Mean Squared Error: " + str(ann.get_MSE())
 
-    data = libfann.read_train_from_file(testdata)
-    fann_reset_MSE(ann)
-    fann_test_data(ann, data)
-    print "Mean Squared Error: " + str(fann_get_MSE(ann))
 
-
-def TrainOnData(self, filename, output):
+def TrainOnData(filename, output):
     connection_rate = 1
     learning_rate = 0.7
 
-    #inputNodes = # Some coooool number
-    #hiddenNodes = inputNodes * 2
-    #outputNodes = 1
+    inputNodes = 99
+    hiddenNodes = inputNodes * 2
+    outputNodes = 1
     
     desired_error = 0.0001
-    max_iterations = 100000
-    iterations_between_reports = 1000
+    max_iterations = 1000
+    iterations_between_reports = 10
 
     ann = libfann.neural_net()
     ann.create_sparse_array(connection_rate, (inputNodes, hiddenNodes, outputNodes))
@@ -31,5 +34,5 @@ def TrainOnData(self, filename, output):
 
     ann.save(output)
 
-TrainOnData("data","NeuralNetwork.out")
-TestOnData("NeuralNetwork.out", "TestData")
+#TrainOnData("train.data","NeuralNetwork.out")
+TestOnData("NeuralNetwork.out", "testdata")
