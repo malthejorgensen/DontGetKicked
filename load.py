@@ -20,7 +20,7 @@ strtype = np.dtype('S' + str(strlen))
 #This would be for N.loadtext
 layout = {
     'names':   ('RefId',    'IsBadBuy', 'PurchDate',    'Auction',  'VehYear',  'VehicleAge',   'Make',     'Model',    'Trim',     'SubModel', 'Color',    'Transmission', 'WheelTypeID',  'WheelType',    'VehOdo',   'Nationality',  'Size',     'TopThreeAmericanName', 'MMRAcquisitionAuctionAveragePrice',    'MMRAcquisitionAuctionCleanPrice',  'MMRAcquisitionRetailAveragePrice', 'MMRAcquisitonRetailCleanPrice',    'MMRCurrentAuctionAveragePrice',    'MMRCurrentAuctionCleanPrice',  'MMRCurrentRetailAveragePrice', 'MMRCurrentRetailCleanPrice',   'PRIMEUNIT',    'AUCGUART', 'BYRNO',    'VNZIP1',   'VNST',     'VehBCost', 'IsOnlineSale', 'WarrantyCost'),
-    'formats': ('int32',    strtype,  strtype,      strtype,  'int32',    'int32',        strtype,  strtype,  strtype,  strtype,  strtype,  strtype,      'int32',        strtype,      'int32',    strtype,      strtype,  strtype,              'int32',                                'int32',                            'int32',                            'int32',                            'int32',                            'int32',                        'int32',                        'int32',                        strtype,      strtype,  'int32',    'int32',    strtype,  'int32',    strtype,      'int32')
+    'formats': ('int32',    'S10',  'S10',      'S10',  'int32',    'int32',        'S10',  'S10',  'S10',  'S10',  'S10',  'S10',      'int32',        'S10',      'int32',    'S10',      'S10',  'S10',              'int32',                                'int32',                            'int32',                            'int32',                            'int32',                            'int32',                        'int32',                        'int32',                        'S10',      'S10',  'int32',    'int32',    'S10',  'int32',    'S10',      'int32')
 }
 #N.loadtxt('training.csv', delimiter=',', dtype=layout)
 l = []
@@ -35,21 +35,21 @@ datatypes = [
         ('RefId', 'int32'),
         ('IsBadBuy', 'i1'),
         ('PurchDate', 'int64'),
-        ('Auction', strtype),
+        ('Auction', 'S10'),
         ('VehYear', 'int64'),
         ('VehicleAge', 'int32'),
-        ('Make', strtype),
-        ('Model', strtype),
-        ('Trim', strtype),
-        ('SubModel', strtype),
-        ('Color', strtype),
-        ('Transmission', strtype),
+        ('Make', 'S10'),
+        ('Model', 'S10'),
+        ('Trim', 'S10'),
+        ('SubModel', 'S10'),
+        ('Color', 'S10'),
+        ('Transmission', 'S10'),
         ('WheelTypeID', 'int32'),
-        ('WheelType', strtype),
+        ('WheelType', 'S10'),
         ('VehOdo', 'int32'),
-        ('Nationality', strtype),
-        ('Size', strtype),
-        ('TopThreeAmericanName', strtype),
+        ('Nationality', 'S10'),
+        ('Size', 'S10'),
+        ('TopThreeAmericanName', 'S10'),
         ('MMRAcquisitionAuctionAveragePrice', 'int32'),
         ('MMRAcquisitionAuctionCleanPrice', 'int32'),
         ('MMRAcquisitionRetailAveragePrice', 'int32'),
@@ -58,13 +58,13 @@ datatypes = [
         ('MMRCurrentAuctionCleanPrice', 'int32'),
         ('MMRCurrentRetailAveragePrice', 'int32'),
         ('MMRCurrentRetailCleanPrice', 'int32'),
-        ('PRIMEUNIT', strtype),
-        ('AUCGUART', strtype),
+        ('PRIMEUNIT', 'S10'),
+        ('AUCGUART', 'S10'),
         ('BYRNO', 'int32'),
         ('VNZIP1', 'int32'),
-        ('VNST', strtype),
+        ('VNST', 'S10'),
         ('VehBCost', 'int32'),
-        ('IsOnlineSale', strtype),
+        ('IsOnlineSale', 'S10'),
         ('WarrantyCost', 'int32')
     ]
 
@@ -99,15 +99,53 @@ else:
 
 datalength = len(data)
 
-options = {}
+options = {
+        'RefId': 'Skip',
+        'IsBadBuy': 'Skip',
+        'PurchDate': 'Skip',
+        'Auction': 10,
+        'VehYear': 'Skip',
+        'VehicleAge': 'Skip',
+        'Make': 'Skip',
+        'Model': 'Skip',
+        'Trim': 'Skip',
+        'SubModel': 'Skip',
+        'Color': 'Skip',
+        'Transmission': 'Skip',
+        'WheelTypeID': 'Skip',
+        'WheelType': 'Skip',
+        'VehOdo': 'Skip',
+        'Nationality': 'Skip',
+        'Size': 'Skip',
+        'TopThreeAmericanName': 'Skip',
+        'MMRAcquisitionAuctionAveragePrice': 'Skip',
+        'MMRAcquisitionAuctionCleanPrice': 'Skip',
+        'MMRAcquisitionRetailAveragePrice': 'Skip',
+        'MMRAcquisitonRetailCleanPrice': 'Skip',
+        'MMRCurrentAuctionAveragePrice': 'Skip',
+        'MMRCurrentAuctionCleanPrice': 'Skip',
+        'MMRCurrentRetailAveragePrice': 'Skip',
+        'MMRCurrentRetailCleanPrice': 'Skip',
+        'PRIMEUNIT': 'Skip',
+        'AUCGUART': 'Skip',
+        'BYRNO': 'Skip',
+        'VNZIP1': 'Skip',
+        'VNST': 'Skip',
+        'VehBCost': 5,
+        'IsOnlineSale': 'Skip',
+        'WarrantyCost': 7
+    }
 
 neurondata = []
+neuron_count = 0
+neuron_dict = {}
+int_intervals = {}
 
 from heapq import nlargest
 
 for name, datatype in datatypes:
     if name in options:
-        option = options['name']
+        option = options[name]
     else:
         option = 10
 
@@ -115,9 +153,13 @@ for name, datatype in datatypes:
         continue
 
     # dealing with strings
-    if datatype == strtype:
+    if datatype == 'S10':
         # get the different values that this column can have
         values = np.unique(data[name])
+
+        # if we have selected more values than are actually present (in data)
+        if option != 'All' and option >= len(values):
+            option = 'All'
 
         value_counts = {}
 
@@ -131,38 +173,71 @@ for name, datatype in datatypes:
         else:
             selected_values = nlargest(option, value_counts.iteritems(), itemgetter(1))
         count = len(selected_values)
-
+        neuron_count += count
+        
         neurons = []
         for i in range(count):
-            neurons.append('0 '*i + '1' + ' 0'*(count-i))
-        
-        neuron_dict = dict(zip(map(itemgetter(0), selected_values), neurons))
-        neuron_dict[None] = '0 '*count + '1'
-
-        def neuronfunction(value):
-            if value in neuron_dict:
-                return neuron_dict[value]
+            if option == 'All':
+                minus = 1
             else:
-                return neuron_dict[None]
+                minus = 0
+            neurons.append('0 '*i + '1' + ' 0'*(count-i-minus))
+        
+        
+        neuron_dict[name] = dict(zip(map(itemgetter(0), selected_values), neurons))
+        if option != 'All':
+            neuron_dict[name][None] = '0 '*count + '1'
 
-        #n_fun_vec = np.vectorize(neuronfunction)
-        fun_type = '|S' + str(len(neuron_dict[None]))
-        print fun_type
+        print neuron_dict[name]
 
-        # lookie here: http://projects.scipy.org/numpy/ticket/1892
-        # - a bug/unfortunate feature in numpy truncate the strings from the
-        # vectorized function to 'S8'... too bad
-        neurondata += [np.vectorize(neuronfunction, otypes=[np.dtype(fun_type)])(data[name])]
-'''
     if datatype == 'int32':
-        dmin = data[name].min()
-        dmax = data[name].max()
-        print name
-        print dmin, dmax
-'''
+        if option == 'Decimal':
+            neuron_count += 1
+            continue
+        else:
+            neuron_count += option
 
-neurondata = np.column_stack(neurondata)
-np.savetxt(args.train_file, neurondata, fmt='%s')
+            dmin = data[name].min()
+            dmax = data[name].max()
+            dinterval = np.linspace(dmin, dmax, num=option+1)
+            int_intervals[name] = dinterval
+            print name
+            print dmin, dmax
+            print dinterval
+
+
+lines = []
+for r in xrange(datalength):
+
+    line = []
+
+    for cname in colnames:
+        if options[cname] == 'Skip':
+            continue
+        
+        if dict(datatypes)[cname] == 'S10':
+            if data[r][cname] in neuron_dict[cname]: 
+                line.append(neuron_dict[cname][data[r][cname]])
+            else:
+                line.append(neuron_dict[cname][None])
+        if dict(datatypes)[cname][0:3] == 'int':
+            if options[cname] == 'Decimal':
+                line.append(str(data[r][cname]))
+            else:
+                c = len(int_intervals[cname]) - 1
+                for i in range(1, len(int_intervals[cname])):
+                    if int_intervals[cname][i-1] <= data[r][cname] <= int_intervals[cname][i]:
+                        #line.append(str(data[r][cname]))
+                        line.append('0 '*(i-1) + '1' + ' 0'*(c-i))
+                        break
+
+            
+    lines.append(' '.join(line)+'\n')
+    lines.append(str(data[r]['IsBadBuy'])+'\n')
+
+s = "%u %u %u\n" % (len(data), neuron_count, 1)
+open(args.train_file, 'w').write(s)
+open(args.train_file, 'a').writelines(lines)
 
 #print data[data['WarrantyCost']>2000]['RefId']
 
