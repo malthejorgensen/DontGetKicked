@@ -20,32 +20,16 @@ parser.add_argument('--range', default='0,2000', help='The range of data rows to
 
 args = parser.parse_args()
 
+# parse '--range' argument
 r_start, r_end = 0, 0
 if args.range != 'all':
     r_start, r_end = map(int, args.range.split(','))
 
-'''
-strlen = 30
-strtype = np.dtype('S' + str(strlen))
-#strtype = 'S' + str(strlen)
-'''
-
-"""
-#This would be for N.loadtext
-layout = {
-    'names':   ('RefId',    'IsBadBuy', 'PurchDate',    'Auction',  'VehYear',  'VehicleAge',   'Make',     'Model',    'Trim',     'SubModel', 'Color',    'Transmission', 'WheelTypeID',  'WheelType',    'VehOdo',   'Nationality',  'Size',     'TopThreeAmericanName', 'MMRAcquisitionAuctionAveragePrice',    'MMRAcquisitionAuctionCleanPrice',  'MMRAcquisitionRetailAveragePrice', 'MMRAcquisitonRetailCleanPrice',    'MMRCurrentAuctionAveragePrice',    'MMRCurrentAuctionCleanPrice',  'MMRCurrentRetailAveragePrice', 'MMRCurrentRetailCleanPrice',   'PRIMEUNIT',    'AUCGUART', 'BYRNO',    'VNZIP1',   'VNST',     'VehBCost', 'IsOnlineSale', 'WarrantyCost'),
-    'formats': ('int32',    'S10',  'S10',      'S10',  'int32',    'int32',        'S10',  'S10',  'S10',  'S10',  'S10',  'S10',      'int32',        'S10',      'int32',    'S10',      'S10',  'S10',              'int32',                                'int32',                            'int32',                            'int32',                            'int32',                            'int32',                        'int32',                        'int32',                        'S10',      'S10',  'int32',    'int32',    'S10',  'int32',    'S10',      'int32')
-}
-#N.loadtxt('training.csv', delimiter=',', dtype=layout)
-l = []
-for i in xrange(len(layout['names'])):
-    l.append( (layout['names'][i],layout['formats'][i]) )
-print l
-"""
-
+# load datatypes ('datatypes') and column names ('colnames') from config file
+# location: config/datatypes/standard.py
 from config.datatypes.standard import *
 
-
+# convert datestring (MM/DD/YYYY) to unix timestamp
 def date_to_timestamp(s):
     if s == 'NULL':
         print 'Holy Balony'
@@ -57,6 +41,7 @@ def date_to_timestamp(s):
 import os, marshal
 from operator import itemgetter
 
+# load data and save to cachefile
 if not os.path.exists(args.temp_file) or args.force_load:
     data = np.genfromtxt('training.csv',
                          delimiter=',',
@@ -70,8 +55,10 @@ if not os.path.exists(args.temp_file) or args.force_load:
     data.tofile(args.temp_file)
     np.save(args.temp_file, data)
 else:
-    #data = np.rec.fromfile(args.temp_file, formats=map(itemgetter(1), datatypes))
+    # load from cache
     data = np.rec.fromfile(args.temp_file, names=colnames, dtype=datatypes)
+
+    #data = np.rec.fromfile(args.temp_file, formats=map(itemgetter(1), datatypes))
     #data = np.load(args.temp_file + '.npy')
 
 datalength = len(data)
@@ -82,6 +69,7 @@ if args.range == 'all':
 # load options from config file (config/skipalot.py)
 from config.neurons.standard import *
 
+# convert values (strings and ints) to neuron inputs
 neurondata = []
 neuron_count = 0
 neuron_dict = {}
@@ -152,6 +140,7 @@ for name, datatype in datatypes:
             print dinterval
 
 
+# generate file output
 lines = []
 
 print r_start
@@ -190,29 +179,3 @@ if args.test_data:
 s = "%u %u %u\n" % (r_end - r_start, neuron_count, 1)
 open(out_file, 'w').write(s)
 open(out_file, 'a').writelines(lines)
-
-#print data[data['WarrantyCost']>2000]['RefId']
-
-"""
-
-from pyfann import libfann
-
-connection_rate = 1
-learning_rate = 0.7
-num_input = 2
-num_neurons_hidden = 4
-num_output = 1
-
-desired_error = 0.0001
-max_iterations = 100000
-iterations_between_reports = 1000
-
-ann = libfann.neural_net()
-ann.create_sparse_array(connection_rate, (num_input, num_neurons_hidden, num_output))
-ann.set_learning_rate(learning_rate)
-ann.set_activation_function_output(libfann.SIGMOID_SYMMETRIC_STEPWISE)
-
-ann.train_on_file("../../examples/xor.data", max_iterations, iterations_between_reports, desired_error)
-
-ann.save("nets/xor_float.net")
-"""
