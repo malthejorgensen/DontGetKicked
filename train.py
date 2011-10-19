@@ -35,4 +35,4 @@ def TrainOnData(filename, output):
     ann.save(output)
 
 #TrainOnData("train.data","NeuralNetwork.out")
-TestOnData("NeuralNetwork.out", "testdata")
+TestOnData("NeuralNetwork.out", "test.data")

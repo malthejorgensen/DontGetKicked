@@ -80,7 +80,7 @@ if args.range == 'all':
     r_end = datalength
 
 # load options from config file (config/skipalot.py)
-from config.neurons.skipalot import *
+from config.neurons.standard import *
 
 neurondata = []
 neuron_count = 0
