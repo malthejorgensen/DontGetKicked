@@ -94,16 +94,52 @@ else:
 
 datalength = len(data)
 
-options = {}
+options = {
+        'RefId': 'Skip',
+        'IsBadBuy': 'Skip',
+        'PurchDate': 'Skip',
+        'Auction': 10,
+        'VehYear': 'Skip',
+        'VehicleAge': 'Skip',
+        'Make': 'Skip',
+        'Model': 'Skip',
+        'Trim': 'Skip',
+        'SubModel': 'Skip',
+        'Color': 'Skip',
+        'Transmission': 'Skip',
+        'WheelTypeID': 'Skip',
+        'WheelType': 'Skip',
+        'VehOdo': 'Skip',
+        'Nationality': 'Skip',
+        'Size': 'Skip',
+        'TopThreeAmericanName': 'Skip',
+        'MMRAcquisitionAuctionAveragePrice': 'Skip',
+        'MMRAcquisitionAuctionCleanPrice': 'Skip',
+        'MMRAcquisitionRetailAveragePrice': 'Skip',
+        'MMRAcquisitonRetailCleanPrice': 'Skip',
+        'MMRCurrentAuctionAveragePrice': 'Skip',
+        'MMRCurrentAuctionCleanPrice': 'Skip',
+        'MMRCurrentRetailAveragePrice': 'Skip',
+        'MMRCurrentRetailCleanPrice': 'Skip',
+        'PRIMEUNIT': 'Skip',
+        'AUCGUART': 'Skip',
+        'BYRNO': 'Skip',
+        'VNZIP1': 'Skip',
+        'VNST': 'Skip',
+        'VehBCost': 'Skip',
+        'IsOnlineSale': 'Skip',
+        'WarrantyCost': 7
+    }
 
 neurondata = []
 neuron_dict = {}
+int_intervals = {}
 
 from heapq import nlargest
 
 for name, datatype in datatypes:
     if name in options:
-        option = options['name']
+        option = options[name]
     else:
         option = 10
 
@@ -114,6 +150,10 @@ for name, datatype in datatypes:
     if datatype == 'S10':
         # get the different values that this column can have
         values = np.unique(data[name])
+
+        # if we have selected more values than are actually present (in data)
+        if option != 'All' and option >= len(values):
+            option = 'All'
 
         value_counts = {}
 
@@ -130,20 +170,31 @@ for name, datatype in datatypes:
         
         neurons = []
         for i in range(count):
-            neurons.append('0 '*i + '1' + ' 0'*(count-i))
+            if option == 'All':
+                minus = 1
+            else:
+                minus = 0
+            neurons.append('0 '*i + '1' + ' 0'*(count-i-minus))
+        
         
         neuron_dict[name] = dict(zip(map(itemgetter(0), selected_values), neurons))
-        neuron_dict[name][None] = '0 '*count + '1'
+        if option != 'All':
+            neuron_dict[name][None] = '0 '*count + '1'
 
         print neuron_dict[name]
 
-'''
     if datatype == 'int32':
+        if option == 'Decimal':
+            continue
+
         dmin = data[name].min()
         dmax = data[name].max()
+        dinterval = np.linspace(dmin, dmax, num=option+1)
+        int_intervals[name] = dinterval
         print name
         print dmin, dmax
-'''
+        print dinterval
+
 
 lines = []
 for r in xrange(datalength):
@@ -151,14 +202,25 @@ for r in xrange(datalength):
     line = []
 
     for cname in colnames:
-        if dict(datatypes)[cname] != 'S10':
+        if options[cname] == 'Skip':
             continue
         
-        if data[r][cname] in neuron_dict[cname]: 
-            line.append(neuron_dict[cname][data[r][cname]])
-        else:
-            line.append(neuron_dict[cname][None])
-        
+        if dict(datatypes)[cname] == 'S10':
+            if data[r][cname] in neuron_dict[cname]: 
+                line.append(neuron_dict[cname][data[r][cname]])
+            else:
+                line.append(neuron_dict[cname][None])
+        if dict(datatypes)[cname][0:3] == 'int':
+            if options[cname] == 'Decimal':
+                line.append(str(data[r][cname]))
+            else:
+                c = len(int_intervals[cname]) - 1
+                for i in range(1, len(int_intervals[cname])):
+                    if int_intervals[cname][i-1] <= data[r][cname] <= int_intervals[cname][i]:
+                        #line.append(str(data[r][cname]))
+                        line.append('0 '*(i-1) + '1' + ' 0'*(c-i))
+
+            
     lines.append(' '.join(line)+'\n')
     lines.append(str(data[r]['IsBadBuy'])+'\n')
             
