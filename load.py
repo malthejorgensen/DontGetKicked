@@ -126,12 +126,13 @@ options = {
         'BYRNO': 'Skip',
         'VNZIP1': 'Skip',
         'VNST': 'Skip',
-        'VehBCost': 'Skip',
+        'VehBCost': 5,
         'IsOnlineSale': 'Skip',
         'WarrantyCost': 7
     }
 
 neurondata = []
+neuron_count = 0
 neuron_dict = {}
 int_intervals = {}
 
@@ -167,6 +168,7 @@ for name, datatype in datatypes:
         else:
             selected_values = nlargest(option, value_counts.iteritems(), itemgetter(1))
         count = len(selected_values)
+        neuron_count += count
         
         neurons = []
         for i in range(count):
@@ -185,15 +187,18 @@ for name, datatype in datatypes:
 
     if datatype == 'int32':
         if option == 'Decimal':
+            neuron_count += 1
             continue
+        else:
+            neuron_count += option
 
-        dmin = data[name].min()
-        dmax = data[name].max()
-        dinterval = np.linspace(dmin, dmax, num=option+1)
-        int_intervals[name] = dinterval
-        print name
-        print dmin, dmax
-        print dinterval
+            dmin = data[name].min()
+            dmax = data[name].max()
+            dinterval = np.linspace(dmin, dmax, num=option+1)
+            int_intervals[name] = dinterval
+            print name
+            print dmin, dmax
+            print dinterval
 
 
 lines = []
@@ -219,12 +224,15 @@ for r in xrange(datalength):
                     if int_intervals[cname][i-1] <= data[r][cname] <= int_intervals[cname][i]:
                         #line.append(str(data[r][cname]))
                         line.append('0 '*(i-1) + '1' + ' 0'*(c-i))
+                        break
 
             
     lines.append(' '.join(line)+'\n')
     lines.append(str(data[r]['IsBadBuy'])+'\n')
-            
-open(args.train_file, 'w').writelines(lines)
+
+s = "%u %u %u\n" % (len(data), neuron_count, 1)
+open(args.train_file, 'w').write(s)
+open(args.train_file, 'a').writelines(lines)
 
 #print data[data['WarrantyCost']>2000]['RefId']
 
