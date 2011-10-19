@@ -7,14 +7,28 @@ import argparse
 parser = argparse.ArgumentParser(description='Load training and process data.')
 parser.add_argument('--force-load', action='store_true', help='Force loading of data. (Forces creation of a new tempfile)')
 parser.add_argument('--temp-file', default='data.temp', help='File for storing loaded data. (Speeds up load time)')
+
 parser.add_argument('--train-file', default='train.data', help='File for saving FANN training data.')
+
+parser.add_argument('--test-data', action='store_true', help='Save FANN test data (instead of training data).')
+parser.add_argument('--test-file', default='test.data', help='File for saving FANN test data.')
+
+parser.add_argument('--skip-header', default=0, type=int, help='Skip this number of lines from beginning of file.')
+parser.add_argument('--skip-footer', default=0, type=int, help='Skip this number of lines from end of file.')
+
+parser.add_argument('--range', default='0,2000', help='The range of data rows to be output to the file ("START,END").')
 
 args = parser.parse_args()
 
+r_start, r_end = 0, 0
+if args.range != 'all':
+    r_start, r_end = map(int, args.range.split(','))
+
+'''
 strlen = 30
 strtype = np.dtype('S' + str(strlen))
 #strtype = 'S' + str(strlen)
-
+'''
 
 """
 #This would be for N.loadtext
@@ -29,44 +43,7 @@ for i in xrange(len(layout['names'])):
 print l
 """
 
-colnames = ['RefId', 'IsBadBuy', 'PurchDate', 'Auction', 'VehYear', 'VehicleAge', 'Make',  'Model', 'Trim',  'SubModel', 'Color', 'Transmission', 'WheelTypeID', 'WheelType', 'VehOdo', 'Nationality', 'Size',  'TopThreeAmericanName', 'MMRAcquisitionAuctionAveragePrice', 'MMRAcquisitionAuctionCleanPrice', 'MMRAcquisitionRetailAveragePrice', 'MMRAcquisitonRetailCleanPrice', 'MMRCurrentAuctionAveragePrice', 'MMRCurrentAuctionCleanPrice', 'MMRCurrentRetailAveragePrice', 'MMRCurrentRetailCleanPrice', 'PRIMEUNIT', 'AUCGUART', 'BYRNO', 'VNZIP1', 'VNST',  'VehBCost', 'IsOnlineSale', 'WarrantyCost']
-
-datatypes = [
-        ('RefId', 'int32'),
-        ('IsBadBuy', 'i1'),
-        ('PurchDate', 'int64'),
-        ('Auction', 'S10'),
-        ('VehYear', 'int64'),
-        ('VehicleAge', 'int32'),
-        ('Make', 'S10'),
-        ('Model', 'S10'),
-        ('Trim', 'S10'),
-        ('SubModel', 'S10'),
-        ('Color', 'S10'),
-        ('Transmission', 'S10'),
-        ('WheelTypeID', 'int32'),
-        ('WheelType', 'S10'),
-        ('VehOdo', 'int32'),
-        ('Nationality', 'S10'),
-        ('Size', 'S10'),
-        ('TopThreeAmericanName', 'S10'),
-        ('MMRAcquisitionAuctionAveragePrice', 'int32'),
-        ('MMRAcquisitionAuctionCleanPrice', 'int32'),
-        ('MMRAcquisitionRetailAveragePrice', 'int32'),
-        ('MMRAcquisitonRetailCleanPrice', 'int32'),
-        ('MMRCurrentAuctionAveragePrice', 'int32'),
-        ('MMRCurrentAuctionCleanPrice', 'int32'),
-        ('MMRCurrentRetailAveragePrice', 'int32'),
-        ('MMRCurrentRetailCleanPrice', 'int32'),
-        ('PRIMEUNIT', 'S10'),
-        ('AUCGUART', 'S10'),
-        ('BYRNO', 'int32'),
-        ('VNZIP1', 'int32'),
-        ('VNST', 'S10'),
-        ('VehBCost', 'int32'),
-        ('IsOnlineSale', 'S10'),
-        ('WarrantyCost', 'int32')
-    ]
+from config.datatypes.standard import *
 
 
 def date_to_timestamp(s):
@@ -83,11 +60,11 @@ from operator import itemgetter
 if not os.path.exists(args.temp_file) or args.force_load:
     data = np.genfromtxt('training.csv',
                          delimiter=',',
-                         names=colnames, skip_header=1, # Auto: 'names=True,'
+                         names=colnames, skip_header=1+args.skip_header, # Auto: 'names=True,'
                          dtype=datatypes, # Auto: 'dtype=None,'
                          missing_values='NULL',
                          converters={'PurchDate': date_to_timestamp},
-                         skip_footer=70000)
+                         skip_footer=args.skip_footer)
                          #converters={'PurchDate': np.datetime64})
                          #usemask=True)
     data.tofile(args.temp_file)
@@ -98,43 +75,12 @@ else:
     #data = np.load(args.temp_file + '.npy')
 
 datalength = len(data)
+if args.range == 'all':
+    r_start = 1
+    r_end = datalength
 
-options = {
-        'RefId': 'Skip',
-        'IsBadBuy': 'Skip',
-        'PurchDate': 'Skip',
-        'Auction': 10,
-        'VehYear': 10,
-        'VehicleAge': 'Skip',
-        'Make': 'Skip',
-        'Model': 'Skip',
-        'Trim': 'Skip',
-        'SubModel': 'Skip',
-        'Color': 'Skip',
-        'Transmission': 'Skip',
-        'WheelTypeID': 'Skip',
-        'WheelType': 'Skip',
-        'VehOdo': 'Skip',
-        'Nationality': 'Skip',
-        'Size': 'Skip',
-        'TopThreeAmericanName': 'Skip',
-        'MMRAcquisitionAuctionAveragePrice': 'Skip',
-        'MMRAcquisitionAuctionCleanPrice': 'Skip',
-        'MMRAcquisitionRetailAveragePrice': 'Skip',
-        'MMRAcquisitonRetailCleanPrice': 'Skip',
-        'MMRCurrentAuctionAveragePrice': 'Skip',
-        'MMRCurrentAuctionCleanPrice': 'Skip',
-        'MMRCurrentRetailAveragePrice': 'Skip',
-        'MMRCurrentRetailCleanPrice': 'Skip',
-        'PRIMEUNIT': 'Skip',
-        'AUCGUART': 'Skip',
-        'BYRNO': 'Skip',
-        'VNZIP1': 'Skip',
-        'VNST': 'Skip',
-        'VehBCost': 5,
-        'IsOnlineSale': 'Skip',
-        'WarrantyCost': 7
-    }
+# load options from config file (config/skipalot.py)
+from config.neurons.skipalot import *
 
 neurondata = []
 neuron_count = 0
@@ -207,7 +153,9 @@ for name, datatype in datatypes:
 
 
 lines = []
-for r in xrange(datalength):
+
+print r_start
+for r in xrange(r_start-1, r_end-1):
 
     line = []
 
@@ -235,9 +183,13 @@ for r in xrange(datalength):
     lines.append(' '.join(line)+'\n')
     lines.append(str(data[r]['IsBadBuy'])+'\n')
 
-s = "%u %u %u\n" % (len(data), neuron_count, 1)
-open(args.train_file, 'w').write(s)
-open(args.train_file, 'a').writelines(lines)
+out_file = args.train_file
+if args.test_data:
+    out_file = args.test_file
+
+s = "%u %u %u\n" % (r_end - r_start, neuron_count, 1)
+open(out_file, 'w').write(s)
+open(out_file, 'a').writelines(lines)
 
 #print data[data['WarrantyCost']>2000]['RefId']
 
