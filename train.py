@@ -26,14 +26,50 @@ def TestOnData(nn, testdata):
     ann = libfann.neural_net()
     ann.create_from_file(nn)
     
-    trainingData = libfann.training_data()
-    trainingData.read_train_from_file(testdata)
+    testData = libfann.training_data()
+    testData.read_train_from_file(testdata)
     #print trainingData.length_train_data()
     ann.reset_MSE()
-    ann.test_data(trainingData)
-    print "Bit Fail: " + str(ann.get_bit_fail())
-    print "Mean Squared Error: " + str(ann.get_MSE())
 
+    if args.full:
+        #print ann.run(testData.get_input())
+        #print testData.num_data
+        #print testData.num_input
+        #print testData.num_output
+        inputs = testData.get_input()
+        outputs = testData.get_output()
+
+        missed_goodbuys = 0
+        missed_badbuys = 0
+        correct_goodbuys = 0
+        correct_badbuys = 0
+
+        print "#Row\tCorrect\tCalc\tFail"
+
+        for i in xrange(len(inputs)):
+            nn_out = ann.run(inputs[i])[0]
+            c_out = outputs[i][0]
+            s = ' '
+            if c_out == 1.0 and nn_out < 0.8:
+                s = 'B'
+                missed_badbuys += 1
+            if c_out == 0.0 and nn_out >= 0.8:
+                s = 'G'
+                missed_goodbuys += 1
+            if c_out == 1.0 and nn_out >= 0.8:
+                correct_badbuys += 1
+            if c_out == 0.0 and nn_out < 0.8:
+                correct_goodbuys += 1
+            
+            print "%5u\t%1.3f\t%1.3f\t%s" % (i+1, outputs[i][0], ann.run(inputs[i])[0], s)
+        print "Missed %u bad buys of %u (%2.1f%%)" % (missed_badbuys, correct_badbuys+missed_badbuys,
+                                                    float(missed_badbuys)/(correct_badbuys+missed_badbuys)*100)
+        print "Missed %u good buys of %u (%2.1f%%)" % (missed_goodbuys, correct_goodbuys+missed_goodbuys,
+                                                     float(missed_goodbuys)/(correct_goodbuys+missed_goodbuys)*100)
+    else:
+        ann.test_data(testData)
+        print "Bit Fail: " + str(ann.get_bit_fail())
+        print "Mean Squared Error: " + str(ann.get_MSE())
 
 def TrainOnData(filename, output):
     conf = __import__("config.learnneurons.%s" % args.neural_config, globals(), locals(), ['*'])
