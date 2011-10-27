@@ -16,13 +16,13 @@ parser.add_argument('--test-file', default='data/test.dat', help='File for savin
 parser.add_argument('--skip-header', default=0, type=int, help='Skip this number of lines from beginning of file.')
 parser.add_argument('--skip-footer', default=0, type=int, help='Skip this number of lines from end of file.')
 
-parser.add_argument('--range', default='0,2000', help='The range of data rows to be output to the file ("START,END").')
+parser.add_argument('--range', default='1,2000', help='The range of data rows to be output to the file ("START,END").')
 
 args = parser.parse_args()
 
 # parse '--range' argument
 r_start, r_end = 0, 0
-if args.range != 'all':
+if args.range.lower() != 'all' and args.range.lower() != 'full':
     r_start, r_end = map(int, args.range.split(','))
 
 # load datatypes ('datatypes') and column names ('colnames') from config file
@@ -62,7 +62,7 @@ else:
     #data = np.load(args.temp_file + '.npy')
 
 datalength = len(data)
-if args.range == 'all':
+if args.range.lower() == 'all' or args.range.lower() == 'full':
     r_start = 1
     r_end = datalength
 
