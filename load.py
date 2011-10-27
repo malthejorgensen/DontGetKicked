@@ -93,7 +93,7 @@ for name, datatype in datatypes:
         values = np.unique(data[name])
 
         # if we have selected more values than are actually present (in data)
-        if option != 'All' and option >= len(values):
+        if option != 'All' and option >= len(values)-1:
             option = 'All'
 
         value_counts = {}
@@ -108,7 +108,7 @@ for name, datatype in datatypes:
         else:
             selected_values = nlargest(option, value_counts.iteritems(), itemgetter(1))
         count = len(selected_values)
-        neuron_count += count
+        
         
         neurons = []
         for i in range(count):
@@ -127,25 +127,19 @@ for name, datatype in datatypes:
 
         if option != 'All':
             neuron_dict[name][None] = '0 '*count + '1'
-
-        print neuron_dict[name]
             neuron_count += 1
             neuron_descriptions[neuron_count] = (name, '*Other*')
 
     if datatype[0:3] == 'int':
         if option == 'Decimal':
             neuron_count += 1
+            neuron_descriptions[neuron_count] = (name, 'Decimal')
             continue
         else:
-            neuron_count += option
-
             dmin = data[name].min()
             dmax = data[name].max()
             dinterval = np.linspace(dmin, dmax, num=option+1)
             int_intervals[name] = dinterval
-            print name
-            print dmin, dmax
-            print dinterval
 
             for i in xrange(1, len(dinterval)):
                 neuron_count += 1
@@ -156,7 +150,6 @@ for name, datatype in datatypes:
 # generate file output
 lines = []
 
-print r_start
 for r in xrange(r_start-1, r_end-1):
 
     line = []
