@@ -10,11 +10,13 @@ parser.add_argument('--temp-file', default='temp/data.tmp', help='File for stori
 
 parser.add_argument('--train-file', default='data/train.dat', help='File for saving FANN training data.')
 
-parser.add_argument('--test-data', action='store_true', help='Save FANN test data (instead of training data).')
-parser.add_argument('--test-file', default='data/test.dat', help='File for saving FANN test data.')
+parser.add_argument('--test-data', action='store_true', help='Generate and save FANN test data to "data/test.dat". (No training data will be saved)')
+parser.add_argument('--test-file', default='', help='Generate and save FANN test data to specified file . (No training data will be saved)')
 
 parser.add_argument('--skip-header', default=0, type=int, help='Skip this number of lines from beginning of file.')
 parser.add_argument('--skip-footer', default=0, type=int, help='Skip this number of lines from end of file.')
+
+parser.add_argument('--data-mapping', default='default', help='Change mapping from data to input neurons (/config/datamapping/default.py)')
 
 parser.add_argument('--range', default='1,2000', help='The range of data rows to be output to the file ("START,END").')
 
@@ -25,9 +27,16 @@ r_start, r_end = 0, 0
 if args.range.lower() != 'all' and args.range.lower() != 'full':
     r_start, r_end = map(int, args.range.split(','))
 
-# load datatypes ('datatypes') and column names ('colnames') from config file
-# location: config/datatypes/standard.py
-from config.datatypes.standard import *
+if args.test_data and args.test_file == '':
+    args.test_file = 'data/test.dat'
+elif args.test_file != '':
+    args.test_data = True
+
+# load datamapping from config file (e.g. config/datamapping/skipalot.py)
+dm = __import__("config.datamapping.%s" % args.data_mapping, globals(), locals(), ['*'])
+colnames = dm.colnames
+datatypes = map(lambda n: (n, dm.data_options[n][0]), colnames)
+options = dict(map(lambda (n, (_, o)): (n, o), dm.data_options.items()))
 
 # convert datestring (MM/DD/YYYY) to unix timestamp
 def date_to_timestamp(s):
@@ -65,9 +74,6 @@ datalength = len(data)
 if args.range.lower() == 'all' or args.range.lower() == 'full':
     r_start = 1
     r_end = datalength
-
-# load options from config file (config/skipalot.py)
-from config.neurons.standard import *
 
 # convert values (strings and ints) to neuron inputs
 neurondata = []
@@ -189,4 +195,4 @@ open(out_file, 'a').writelines(lines)
 s = str(neuron_descriptions).replace('), ', '),\n    ')
 s = s.replace('{','{\n    ')
 s = s.replace('}','\n}')
-open(out_file + '.conf.py', 'w').write(s)
+open(out_file + '.conf.py', 'w').write('neuron_names = ' + s)

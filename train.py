@@ -6,18 +6,19 @@ parser.add_argument('--network-file', default='networks/default.net', help='File
 
 parser.add_argument('--train-file', default='data/train.dat', help='File where FANN training data is stored.')
 
-parser.add_argument('--test', action='store_true', help='Test neural network (instead of training it).')
-parser.add_argument('--full', action='store_true', help='Fully test of neural network (print result for all test input).')
-parser.add_argument('--test-file', default='data/test.dat', help='File where FANN test data is stored.')
+parser.add_argument('--test', action='store_true', help='Test neural network on "data/test.dat". (No training will occur).')
+parser.add_argument('--test-file', default='', help='Test neural network on specified file. (No training will occur).')
+parser.add_argument('--full', action='store_true', help='Verbose test of neural network (prints result for every line of test input).')
 
-parser.add_argument('--neural-config', default='standard', help='Which config (number of neurons in hidden layer etc.) to use. The files are stored in config/learnneurons/')
-
-
-#parser.add_argument('--skip-header', default=0, type=int, help='Skip this number of lines from beginning of file.')
-#parser.add_argument('--skip-footer', default=0, type=int, help='Skip this number of lines from end of file.')
-#parser.add_argument('--range', default='0,2000', help='The range of data rows to be output to the file ("START,END").')
+parser.add_argument('--neural-config', default='default', help='Which config neural network config to use. (config/train/default.py)')
 
 args = parser.parse_args()
+
+
+if args.test and args.test_file == '':
+    args.test_file = 'data/test.dat'
+elif args.test_file != '':
+    args.test = True
 
 
 from pyfann import libfann
@@ -28,14 +29,9 @@ def TestOnData(nn, testdata):
     
     testData = libfann.training_data()
     testData.read_train_from_file(testdata)
-    #print trainingData.length_train_data()
     ann.reset_MSE()
 
     if args.full:
-        #print ann.run(testData.get_input())
-        #print testData.num_data
-        #print testData.num_input
-        #print testData.num_output
         inputs = testData.get_input()
         outputs = testData.get_output()
 
@@ -72,7 +68,7 @@ def TestOnData(nn, testdata):
         print "Mean Squared Error: " + str(ann.get_MSE())
 
 def TrainOnData(filename, output):
-    conf = __import__("config.learnneurons.%s" % args.neural_config, globals(), locals(), ['*'])
+    conf = __import__("config.train.%s" % args.neural_config, globals(), locals(), ['*'])
 
     inputNodes = int(open(filename).readline().split()[1])
     outputNodes = int(open(filename).readline().split()[2])
