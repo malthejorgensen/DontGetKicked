@@ -6,12 +6,12 @@ import argparse
 
 parser = argparse.ArgumentParser(description='Load training and process data.')
 parser.add_argument('--force-load', action='store_true', help='Force loading of data. (Forces creation of a new tempfile)')
-parser.add_argument('--temp-file', default='data.temp', help='File for storing loaded data. (Speeds up load time)')
+parser.add_argument('--temp-file', default='temp/data.tmp', help='File for storing loaded data. (Speeds up load time)')
 
-parser.add_argument('--train-file', default='train.data', help='File for saving FANN training data.')
+parser.add_argument('--train-file', default='data/train.dat', help='File for saving FANN training data.')
 
 parser.add_argument('--test-data', action='store_true', help='Save FANN test data (instead of training data).')
-parser.add_argument('--test-file', default='test.data', help='File for saving FANN test data.')
+parser.add_argument('--test-file', default='data/test.dat', help='File for saving FANN test data.')
 
 parser.add_argument('--skip-header', default=0, type=int, help='Skip this number of lines from beginning of file.')
 parser.add_argument('--skip-footer', default=0, type=int, help='Skip this number of lines from end of file.')

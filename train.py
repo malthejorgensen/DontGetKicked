@@ -2,12 +2,16 @@ import argparse
 
 parser = argparse.ArgumentParser(description='Train and test neural network on generated training and test data.')
 
-parser.add_argument('--network-file', default='brain.neuralnet', help='File where FANN neural network is stored.')
+parser.add_argument('--network-file', default='networks/default.net', help='File where FANN neural network is stored.')
 
-parser.add_argument('--train-file', default='train.data', help='File where FANN training data is stored.')
+parser.add_argument('--train-file', default='data/train.dat', help='File where FANN training data is stored.')
 
 parser.add_argument('--test', action='store_true', help='Test neural network (instead of training it).')
-parser.add_argument('--test-file', default='test.data', help='File where FANN test data is stored.')
+parser.add_argument('--full', action='store_true', help='Fully test of neural network (print result for all test input).')
+parser.add_argument('--test-file', default='data/test.dat', help='File where FANN test data is stored.')
+
+parser.add_argument('--neural-config', default='standard', help='Which config (number of neurons in hidden layer etc.) to use. The files are stored in config/learnneurons/')
+
 
 #parser.add_argument('--skip-header', default=0, type=int, help='Skip this number of lines from beginning of file.')
 #parser.add_argument('--skip-footer', default=0, type=int, help='Skip this number of lines from end of file.')
@@ -32,23 +36,17 @@ def TestOnData(nn, testdata):
 
 
 def TrainOnData(filename, output):
-    connection_rate = 1
-    learning_rate = 0.7
+    conf = __import__("config.learnneurons.%s" % args.neural_config, globals(), locals(), ['*'])
 
-    inputNodes = 99
-    hiddenNodes = inputNodes * 2
-    outputNodes = 1
-    
-    desired_error = 0.0001
-    max_iterations = 1000
-    iterations_between_reports = 10
+    inputNodes = int(open(filename).readline().split()[1])
+    outputNodes = int(open(filename).readline().split()[2])
 
     ann = libfann.neural_net()
-    ann.create_sparse_array(connection_rate, (inputNodes, hiddenNodes, outputNodes))
-    ann.set_learning_rate(learning_rate)
+    ann.create_sparse_array(conf.connection_rate, (inputNodes, conf.hiddenNodes, outputNodes))
+    ann.set_learning_rate(conf.learning_rate)
     ann.set_activation_function_output(libfann.SIGMOID_SYMMETRIC_STEPWISE)
 
-    ann.train_on_file(filename, max_iterations, iterations_between_reports, desired_error)
+    ann.train_on_file(filename, conf.max_iterations, conf.iterations_between_reports, conf.desired_error)
 
     ann.save(output)
 
