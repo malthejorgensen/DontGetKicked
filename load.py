@@ -73,6 +73,7 @@ from config.neurons.standard import *
 neurondata = []
 neuron_count = 0
 neuron_dict = {}
+neuron_descriptions = {}
 int_intervals = {}
 
 from heapq import nlargest
@@ -119,10 +120,17 @@ for name, datatype in datatypes:
         
         
         neuron_dict[name] = dict(zip(map(itemgetter(0), selected_values), neurons))
+        for v in map(itemgetter(0), selected_values):
+            neuron_count += 1
+            neuron_descriptions[neuron_count] = (name, v)
+
+
         if option != 'All':
             neuron_dict[name][None] = '0 '*count + '1'
 
         print neuron_dict[name]
+            neuron_count += 1
+            neuron_descriptions[neuron_count] = (name, '*Other*')
 
     if datatype[0:3] == 'int':
         if option == 'Decimal':
@@ -138,6 +146,11 @@ for name, datatype in datatypes:
             print name
             print dmin, dmax
             print dinterval
+
+            for i in xrange(1, len(dinterval)):
+                neuron_count += 1
+                neuron_descriptions[neuron_count] = (name, '%u - %u' % (dinterval[i-1], dinterval[i]))
+
 
 
 # generate file output
@@ -179,3 +192,8 @@ if args.test_data:
 s = "%u %u %u\n" % (r_end - r_start, neuron_count, 1)
 open(out_file, 'w').write(s)
 open(out_file, 'a').writelines(lines)
+
+s = str(neuron_descriptions).replace('), ', '),\n    ')
+s = s.replace('{','{\n    ')
+s = s.replace('}','\n}')
+open(out_file + '.conf.py', 'w').write(s)
